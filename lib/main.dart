@@ -16,21 +16,24 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Chatbot(),
+      home: const Chatbot(),
     );
   }
 }
 class Chatbot extends StatefulWidget {
+  const Chatbot({Key? key}) : super(key: key);
+
   @override
+  // ignore: library_private_types_in_public_api
   _ChatbotState createState() => _ChatbotState();
 }
 
 class _ChatbotState extends State<Chatbot> {
   List<ChatMessage> messages = [];
-  TextEditingController _inputMessageController = new TextEditingController();
+  final TextEditingController _inputMessageController = TextEditingController();
   late Dialogflow dialogflow;
   late AuthGoogle authGoogle;
-  ScrollController _scrollController = new ScrollController(
+  final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
   );
