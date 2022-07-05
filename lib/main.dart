@@ -179,8 +179,11 @@ class _ChatbotState extends State<Chatbot> {
     // print(response.getListMessage()[0]);
     Map data =(response.getListMessage()[0]);
     print(data['payload']['reply']);
-
     messages.add(ChatMessage(messageContent: data['payload']['reply'], messageType: "receiver"));
+    for(var suggestion in data['payload']['suggestions'])
+   { messages.add(ChatMessage(messageContent: suggestion, messageType: "sender"));}
     setState(() {});
   }
 }
+
+
