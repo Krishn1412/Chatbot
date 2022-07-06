@@ -43,6 +43,7 @@ class _ChatbotState extends State<Chatbot> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       await initiateDialogFlow();
+
     });
   }
 
@@ -86,23 +87,31 @@ class _ChatbotState extends State<Chatbot> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ListView.builder(
+            ListView.builder(   // this listview displays all the messages
               itemCount: messages.length,
               shrinkWrap:true,
               padding: const EdgeInsets.only(top: 10,bottom: 10),
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index){
-                return Container(
-                  padding: const EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
-                  child: Align(
-                    alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: (messages[index].messageType  == "receiver"?Colors.grey.shade200:const Color.fromRGBO(227, 207, 201, 30)),
+                return GestureDetector(
+                  onTap: (){
+                    print('${messages[index].messageContent} pressed');
+                    if(messages[index].messageCategory == "suggestion")
+                    {fetchFromDialogFlow(messages[index].messageContent);}
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
+                    child: Align(
+                      alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: (messages[index].messageType  == "receiver"?Colors.grey.shade200:(messages[index].messageCategory  == "suggestion"?const Color.fromARGB(225, 143, 164, 245)
+                                  :const Color.fromRGBO(227, 207, 201, 30))),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Text(messages[index].messageContent, style: const TextStyle(fontSize: 15),),
                       ),
-                      padding: const EdgeInsets.all(16),
-                      child: Text(messages[index].messageContent, style: const TextStyle(fontSize: 15),),
                     ),
                   ),
                 );
@@ -167,22 +176,33 @@ class _ChatbotState extends State<Chatbot> {
     AuthGoogle authGoogle =
     await AuthGoogle(fileJson: 'assets/chatbotkey.json').build();
     dialogflow = Dialogflow(authGoogle: authGoogle, language: Language.english);
-    fetchFromDialogFlow("hi");
   }
 
   fetchFromDialogFlow(String input) async {
     _inputMessageController.clear();
     setState(() {
-      messages.add(ChatMessage(messageContent: input, messageType: "sender"));
+      messages.add(ChatMessage(messageContent: input, messageType: "sender",messageCategory: "sent"));
     });
     AIResponse response = await dialogflow.detectIntent(input);
-    // print(response.getListMessage()[0]);
-    Map data =(response.getListMessage()[0]);
-    print(data['payload']['reply']);
-    messages.add(ChatMessage(messageContent: data['payload']['reply'], messageType: "receiver"));
-    for(var suggestion in data['payload']['suggestions'])
-   { messages.add(ChatMessage(messageContent: suggestion, messageType: "sender"));}
-    setState(() {});
+    Map data =response.getListMessage()[0];
+ 
+      messages.add(ChatMessage(
+          messageContent: data['payload']['reply'],
+          messageType: "receiver",
+          messageCategory: "reply"));
+      for (var suggestion in data['payload']['suggestions']) {
+        messages.add(ChatMessage(
+            messageContent: suggestion,
+            messageType: "sender",
+            messageCategory: "suggestion"));
+      }
+      for (var activity in data['payload']['activities']) {
+        messages.add(ChatMessage(
+            messageContent: activity,
+            messageType: "sender",
+            messageCategory: "activity"));
+      }
+       setState(() {});
   }
 }
 
