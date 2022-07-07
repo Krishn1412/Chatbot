@@ -101,7 +101,6 @@ class _ChatbotState extends State<Chatbot> {
                     if (messages[index].messageCategory == "activity") {
                       // redirect to pap activity
                        print('redirected to pap');
-                      
                     }
                   },
                   child: Container(
