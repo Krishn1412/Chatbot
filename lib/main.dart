@@ -100,12 +100,7 @@ class _ChatbotState extends State<Chatbot> {
                     {fetchFromDialogFlow(messages[index].messageContent);}
                     if (messages[index].messageCategory == "activity") {
                       // redirect to pap activity
-<<<<<<< HEAD
                        print('redirected to pap');
-=======
-                      print('redirected to pap');
-
->>>>>>> 5461a0e2e93c1c351bdc1a653415957eab830886
                     }
                   },
                   child: Container(
