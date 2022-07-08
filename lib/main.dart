@@ -100,22 +100,28 @@ class _ChatbotState extends State<Chatbot> {
                     {fetchFromDialogFlow(messages[index].messageContent);}
                     if (messages[index].messageCategory == "activity") {
                       // redirect to pap activity
-                       print('redirected to pap');
+                      print('redirected to pap');
                     }
                   },
                   child: Container(
                     padding: const EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
                     child: Align(
-                       alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
-  
+                      alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
+
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           color: (messages[index].messageType  == "receiver"?Colors.grey.shade200:(messages[index].messageCategory  == "suggestion"?const Color.fromARGB(225, 143, 164, 245)
                               :(messages[index].messageCategory  == "activity"? const Color.fromARGB(225, 171, 74, 45)
                               :const Color.fromRGBO(227, 207, 201, 30)))),
+
+                        //   image: DecorationImage(
+                        //     fit: BoxFit.fill,
+                        //     image: (messages[index].messageCategory  == "activity"? AssetImage('assets/bubbles.jpg'):AssetImage('assets/pq.png'))
+                        // ),
                         ),
-                        padding: const EdgeInsets.all(16),
+
+                        padding:(messages[index].messageCategory  == "activity"? const  EdgeInsets.fromLTRB(28, 19, 28, 19):const  EdgeInsets.all(16)),
                         child: Text(messages[index].messageContent, style: const TextStyle(fontSize: 15),),
                       ),
                     ),
@@ -221,4 +227,3 @@ class _ChatbotState extends State<Chatbot> {
     setState(() {});
   }
 }
-
