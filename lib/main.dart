@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                     if (messages[index].messageCategory == "activity") {
                       // redirect to pap activity
-                      print('redirected to pap');
+                    print('redirected to pap');
                     }
                   },
                   child: Container(
@@ -127,23 +127,24 @@ class _MyHomePageState extends State<MyHomePage> {
                               ? Colors.grey.shade200
                               : (messages[index].messageCategory == "suggestion"
                                   ? const Color.fromARGB(225, 143, 164, 245)
-                                  : (messages[index].messageCategory ==
-                                          "activity"
-                                      ? const Color.fromARGB(225, 171, 74, 45)
-                                      : const Color.fromRGBO(
-                                          227, 207, 201, 30)))),
-
-                          //   image: DecorationImage(
-                          //     fit: BoxFit.fill,
-                          //     image: (messages[index].messageCategory  == "activity"? AssetImage('assets/bubbles.jpg'):AssetImage('assets/pq.png'))
-                          // ),
+                                  : (messages[index].messageCategory =="activity"
+                                      ? const Color.fromARGB(225, 255, 255, 255)
+                                      : const Color.fromRGBO(227, 207, 201, 30)))),
+                          image: DecorationImage(
+                              fit: BoxFit.fill,
+                              image: (messages[index].messageCategory  == "activity"?const AssetImage('assets/masti.png'):const AssetImage(''))
+                          ),
                         ),
-                        padding: (messages[index].messageCategory == "activity"
-                            ? const EdgeInsets.fromLTRB(28, 19, 28, 19)
-                            : const EdgeInsets.all(16)),
-                        child: Text(
-                          messages[index].messageContent,
-                          style: const TextStyle(fontSize: 15),
+                        padding: (messages[index].messageCategory == "suggestion"
+                            ? const EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10)
+                            : (messages[index].messageCategory == "activity"
+                                ? const EdgeInsets.only(
+                                    left: 20, right: 20, top: 40, bottom: 40)
+                                : const EdgeInsets.all(16))),
+                        child: Text(messages[index].messageContent,
+                          style: (messages[index].messageCategory =="activity"
+                                      ? const TextStyle(fontSize: 25,color: Colors.white,backgroundColor: Colors.brown,fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 15)),
                         ),
                       ),
                     ),
@@ -157,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget bottomChatView() {
+Widget bottomChatView() {
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       height: 60,
@@ -203,16 +204,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 /////////////FUNCTIONS//////////////////////
-// initializing dialogflow
-
-  _scrollToBottom() {
+_scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
   }
-  initiateDialogFlow() async {
+initiateDialogFlow() async {
     DialogAuthCredentials credentials = await DialogAuthCredentials.fromFile("assets/chatbotkey.json");
     dialogFlowtter = DialogFlowtter(credentials: credentials,);
      messages.add(ChatMessage(
@@ -229,7 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 // send message and detect intent
-  fetchFromDialogFlow(String text) async {
+fetchFromDialogFlow(String text) async {
     if (text.isEmpty) return;
     setState(() {
           messages.add(ChatMessage(
