@@ -1,7 +1,7 @@
-import 'dart:convert';
+import 'dart:html';
 
+import 'package:dialog_flowtter/dialog_flowtter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dialogflow/dialogflow_v2.dart';
 import 'model/chatModel.dart';
 
 void main() {
@@ -14,26 +14,32 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Chatbot(),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const MyHomePage(title: 'Dialog Flowtter'),
     );
   }
 }
-class Chatbot extends StatefulWidget {
-  const Chatbot({Key? key}) : super(key: key);
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, this.title}) : super(key: key);
+  final String? title;
 
   @override
   // ignore: library_private_types_in_public_api
-  _ChatbotState createState() => _ChatbotState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _ChatbotState extends State<Chatbot> {
-  List<ChatMessage> messages = [];
+class _MyHomePageState extends State<MyHomePage> {
+  late DialogFlowtter dialogFlowtter;
   final TextEditingController _inputMessageController = TextEditingController();
-  late Dialogflow dialogflow;
-  late AuthGoogle authGoogle;
-  final ScrollController _scrollController = ScrollController(
+
+  List<ChatMessage> messages = [];
+    final ScrollController _scrollController = ScrollController(
     initialScrollOffset: 0.0,
     keepScrollOffset: true,
   );
@@ -43,7 +49,6 @@ class _ChatbotState extends State<Chatbot> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       await initiateDialogFlow();
-
     });
   }
 
@@ -53,12 +58,12 @@ class _ChatbotState extends State<Chatbot> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(249, 239, 238, 10),
       body: Stack(
-        children:[
+        children: [
           const Center(
-            child:CircleAvatar(
+            child: CircleAvatar(
               backgroundImage: AssetImage('assets/masti.png'),
               backgroundColor: Colors.transparent,
-              radius:40.0,
+              radius: 40.0,
             ),
           ),
           const SizedBox(height: 40.0),
@@ -77,8 +82,11 @@ class _ChatbotState extends State<Chatbot> {
         ],
       ),
     );
+   
   }
 
+
+  
   Widget chatSpaceWidget() {
     return Flexible(
       child: SingleChildScrollView(
@@ -87,42 +95,56 @@ class _ChatbotState extends State<Chatbot> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            ListView.builder(   // this listview displays all the messages
+            ListView.builder(
+              // this listview displays all the messages
               itemCount: messages.length,
-              shrinkWrap:true,
-              padding: const EdgeInsets.only(top: 10,bottom: 10),
+              shrinkWrap: true,
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
               physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index){
+              itemBuilder: (context, index) {
                 return GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     print('${messages[index].messageContent} pressed');
-                    if(messages[index].messageCategory == "suggestion")
-                    {fetchFromDialogFlow(messages[index].messageContent);}
+                    if (messages[index].messageCategory == "suggestion") {
+                      fetchFromDialogFlow(messages[index].messageContent);
+                    }
                     if (messages[index].messageCategory == "activity") {
                       // redirect to pap activity
                       print('redirected to pap');
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
+                    padding: const EdgeInsets.only(
+                        left: 14, right: 14, top: 10, bottom: 10),
                     child: Align(
-                      alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
-
+                      alignment: (messages[index].messageType == "receiver"
+                          ? Alignment.topLeft
+                          : Alignment.topRight),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: (messages[index].messageType  == "receiver"?Colors.grey.shade200:(messages[index].messageCategory  == "suggestion"?const Color.fromARGB(225, 143, 164, 245)
-                              :(messages[index].messageCategory  == "activity"? const Color.fromARGB(225, 171, 74, 45)
-                              :const Color.fromRGBO(227, 207, 201, 30)))),
+                          color: (messages[index].messageType == "receiver"
+                              ? Colors.grey.shade200
+                              : (messages[index].messageCategory == "suggestion"
+                                  ? const Color.fromARGB(225, 143, 164, 245)
+                                  : (messages[index].messageCategory ==
+                                          "activity"
+                                      ? const Color.fromARGB(225, 171, 74, 45)
+                                      : const Color.fromRGBO(
+                                          227, 207, 201, 30)))),
 
-                        //   image: DecorationImage(
-                        //     fit: BoxFit.fill,
-                        //     image: (messages[index].messageCategory  == "activity"? AssetImage('assets/bubbles.jpg'):AssetImage('assets/pq.png'))
-                        // ),
+                          //   image: DecorationImage(
+                          //     fit: BoxFit.fill,
+                          //     image: (messages[index].messageCategory  == "activity"? AssetImage('assets/bubbles.jpg'):AssetImage('assets/pq.png'))
+                          // ),
                         ),
-
-                        padding:(messages[index].messageCategory  == "activity"? const  EdgeInsets.fromLTRB(28, 19, 28, 19):const  EdgeInsets.all(16)),
-                        child: Text(messages[index].messageContent, style: const TextStyle(fontSize: 15),),
+                        padding: (messages[index].messageCategory == "activity"
+                            ? const EdgeInsets.fromLTRB(28, 19, 28, 19)
+                            : const EdgeInsets.all(16)),
+                        child: Text(
+                          messages[index].messageContent,
+                          style: const TextStyle(fontSize: 15),
+                        ),
                       ),
                     ),
                   ),
@@ -166,7 +188,11 @@ class _ChatbotState extends State<Chatbot> {
             },
             backgroundColor: Colors.brown,
             elevation: 0,
-            child: const Icon(Icons.send, color: Colors.white,size: 18,),
+            child: const Icon(
+              Icons.send,
+              color: Colors.white,
+              size: 18,
+            ),
           ),
         ],
       ),
@@ -174,7 +200,10 @@ class _ChatbotState extends State<Chatbot> {
   }
 
 
-  // functions
+
+
+/////////////FUNCTIONS//////////////////////
+// initializing dialogflow
 
   _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -183,42 +212,47 @@ class _ChatbotState extends State<Chatbot> {
       }
     });
   }
-
   initiateDialogFlow() async {
-    AuthGoogle authGoogle =
-    await AuthGoogle(fileJson: 'assets/chatbotkey.json').build();
-    dialogflow = Dialogflow(authGoogle: authGoogle, language: Language.english);
-    messages.add(ChatMessage(
-        messageContent: "Hello I am MASTHI, and I am here to help!! How are you feeling today?? ", messageType: "receiver", messageCategory: "reply"));
-    var suggestions =["Sad", "Tired","Worried", "Angry","Sleep"];
+    DialogAuthCredentials credentials = await DialogAuthCredentials.fromFile("assets/chatbotkey.json");
+    dialogFlowtter = DialogFlowtter(credentials: credentials,);
+     messages.add(ChatMessage(
+        messageContent:"Hello I am MASTHI, and I am here to help!! How are you feeling today?? ",
+        messageType: "receiver",
+        messageCategory: "reply"));
+    var suggestions = ["Sad", "Tired", "Worried", "Angry", "Sleep"];
     for (var suggestion in suggestions) {
       messages.add(ChatMessage(
           messageContent: suggestion,
           messageType: "sender",
           messageCategory: "suggestion"));
     }
-    setState(() {
-    });
+    setState(() {});
   }
-
-  fetchFromDialogFlow(String input) async {
-    _inputMessageController.clear();
+// send message and detect intent
+  fetchFromDialogFlow(String text) async {
+    if (text.isEmpty) return;
     setState(() {
-      messages.add(ChatMessage(messageContent: input, messageType: "sender",messageCategory: "sent"));
+          messages.add(ChatMessage(
+          messageContent: text,
+          messageType: "sender",
+          messageCategory: "sent"));
     });
-    AIResponse response = await dialogflow.detectIntent(input);
-    Map data =response.getListMessage()[0];
+    DetectIntentResponse response = await dialogFlowtter.detectIntent(
+      queryInput: QueryInput(text: TextInput(text: text)),
+    );
+    Map data =response.toJson()["queryResult"]["fulfillmentMessages"][0]["payload"];
+    // print(data);
     messages.add(ChatMessage(
-        messageContent: data['payload']['reply'],
+        messageContent: data['reply'],
         messageType: "receiver",
         messageCategory: "reply"));
-    for (var suggestion in data['payload']['suggestions']) {
+    for (var suggestion in data['suggestions']) {
       messages.add(ChatMessage(
           messageContent: suggestion,
           messageType: "sender",
           messageCategory: "suggestion"));
     }
-    for (var activity in data['payload']['activity']) {
+    for (var activity in data['activity']) {
       messages.add(ChatMessage(
           messageContent: activity,
           messageType: "sender",
@@ -226,4 +260,11 @@ class _ChatbotState extends State<Chatbot> {
     }
     setState(() {});
   }
+
+  @override
+  void dispose() {
+    dialogFlowtter.dispose();
+    super.dispose();
+  }
+  
 }
